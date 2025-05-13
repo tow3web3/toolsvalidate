@@ -1,0 +1,807 @@
+const COMMUNITY_TOOLS = {
+  'Real-time Updates': {
+    author: 'tow3 team',
+    reward: '8%',
+    description: 'Stream real-time trading and token creation data with WebSocket integration',
+    languages: {
+      Python: `import asyncio
+import websockets
+import json
+
+async def subscribe():
+    uri = "wss://pumpportal.fun/api/data"
+    async with websockets.connect(uri) as websocket:
+        # Subscribing to token creation events
+        payload = {
+            "method": "subscribeNewToken",
+        }
+        await websocket.send(json.dumps(payload))
+
+        # Subscribing to migration events
+        payload = {
+            "method": "subscribeMigration",
+        }
+        await websocket.send(json.dumps(payload))
+
+        # Subscribing to trades made by accounts
+        payload = {
+            "method": "subscribeAccountTrade",
+            "keys": ["AArPXm8JatJiuyEffuC1un2Sc835SULa4uQqDcaGpAjV"]
+        }
+        await websocket.send(json.dumps(payload))
+
+        async for message in websocket:
+            print(json.loads(message))`,
+      
+      JavaScript: `const WebSocket = require('ws');
+
+const ws = new WebSocket('wss://pumpportal.fun/api/data');
+
+ws.on('open', () => {
+    // Subscribe to token creation
+    ws.send(JSON.stringify({
+        method: "subscribeNewToken"
+    }));
+
+    // Subscribe to specific token trades
+    ws.send(JSON.stringify({
+        method: "subscribeTokenTrade",
+        keys: ["91WNez8D22NwBssQbkzjy4s2ipFrzpmn5hfvWVe2aY5p"]
+    }));
+});
+
+ws.on('message', (data) => {
+    console.log(JSON.parse(data));
+});`
+    }
+  },
+
+  'Fast Copy Trading': {
+    author: 'tow3 team',
+    reward: '7%',
+    description: 'High-speed copy trading implementation with wallet tracking',
+    languages: {
+      Python: `from web3 import Web3
+import asyncio
+
+class CopyTrader:
+    def __init__(self, target_wallet: str):
+        self.target = target_wallet
+        self.web3 = Web3()
+        
+    async def monitor_transactions(self):
+        while True:
+            txs = await self.get_wallet_transactions()
+            for tx in txs:
+                if self.is_trade(tx):
+                    await self.copy_trade(tx)
+            await asyncio.sleep(0.1)
+            
+    async def copy_trade(self, tx):
+        # Copy trade implementation
+        pass`,
+      
+      JavaScript: `const { Connection, PublicKey } = require('@solana/web3.js');
+
+class CopyTrader {
+  constructor(targetWallet) {
+    this.target = new PublicKey(targetWallet);
+    this.connection = new Connection('https://api.mainnet-beta.solana.com');
+  }
+  
+  async monitorTransactions() {
+    this.connection.onAccountChange(
+      this.target,
+      async (accountInfo) => {
+        await this.copyTrade(accountInfo);
+      }
+    );
+  }
+}`
+    }
+  },
+
+  'Anti MEV Bot': {
+    author: 'tow3 team',
+    reward: '9%',
+    description: 'Protection against MEV attacks and sandwich trading',
+    languages: {
+      Rust: `use solana_sdk::{
+    transaction::Transaction,
+    instruction::Instruction
+};
+
+pub struct AntiMEV {
+    min_block_inclusion: u64,
+    max_block_inclusion: u64,
+}
+
+impl AntiMEV {
+    pub async fn protect_transaction(
+        &self,
+        tx: Transaction
+    ) -> Result<Transaction> {
+        // Implementation of MEV protection
+        Ok(protected_tx)
+    }
+}`,
+      
+      TypeScript: `import { Transaction, Connection } from '@solana/web3.js';
+
+class AntiMEV {
+  private connection: Connection;
+  
+  constructor() {
+    this.connection = new Connection('https://api.mainnet-beta.solana.com');
+  }
+  
+  async protectTransaction(tx: Transaction): Promise<Transaction> {
+    // Add MEV protection logic
+    return protectedTx;
+  }
+}`
+    }
+  },
+
+  'Sell All Bundle': {
+    author: 'tow3 team',
+    reward: '6%',
+    description: 'Bundle multiple sell transactions for efficient execution',
+    languages: {
+      Python: `from solana.rpc.async_api import AsyncClient
+from solana.transaction import Transaction
+
+async def create_sell_bundle(tokens: list, wallet: str):
+    client = AsyncClient("https://api.mainnet-beta.solana.com")
+    
+    transactions = []
+    for token in tokens:
+        tx = Transaction().add(create_sell_instruction(
+            token_address=token,
+            wallet=wallet
+        ))
+        transactions.append(tx)
+        
+    return await bundle_transactions(transactions)`,
+      
+      JavaScript: `const { Transaction } = require('@solana/web3.js');
+
+async function createSellBundle(tokens, wallet) {
+  const transactions = tokens.map(token => {
+    const tx = new Transaction();
+    tx.add(createSellInstruction(token, wallet));
+    return tx;
+  });
+  
+  return await bundleTransactions(transactions);
+}`
+    }
+  },
+
+  'Token Detector': {
+    author: 'tow3 team',
+    reward: '8%',
+    description: 'Real-time token detection and analysis system',
+    languages: {
+      Python: `import asyncio
+from web3 import Web3
+
+class TokenDetector:
+    def __init__(self):
+        self.web3 = Web3()
+        
+    async def monitor_new_tokens(self):
+        while True:
+            block = await self.web3.eth.get_block('latest', True)
+            for tx in block.transactions:
+                if self.is_token_creation(tx):
+                    await self.analyze_token(tx)
+            await asyncio.sleep(0.1)`,
+      
+      TypeScript: `import { Connection, PublicKey } from '@solana/web3.js';
+
+class TokenDetector {
+  private connection: Connection;
+  
+  constructor() {
+    this.connection = new Connection('https://api.mainnet-beta.solana.com');
+  }
+  
+  async monitorNewTokens() {
+    // Implementation
+  }
+}`
+    }
+  },
+
+  'Sniper X': {
+    author: 'tow3 team',
+    reward: '7%',
+    description: 'Advanced token sniping with multi-DEX support',
+    languages: {
+      Python: `class SniperX:
+    def __init__(self):
+        self.dexes = ['pump', 'raydium', 'orca']
+        
+    async def snipe(
+        self,
+        token_address: str,
+        amount: float,
+        max_slippage: float
+    ):
+        best_dex = await self.find_best_dex(token_address)
+        return await self.execute_snipe(
+            dex=best_dex,
+            token=token_address,
+            amount=amount,
+            slippage=max_slippage
+        )`,
+      
+      JavaScript: `class SniperX {
+  constructor() {
+    this.dexes = ['pump', 'raydium', 'orca'];
+  }
+  
+  async snipe(tokenAddress, amount, maxSlippage) {
+    const bestDex = await this.findBestDex(tokenAddress);
+    return await this.executeSnipe(bestDex, tokenAddress, amount, maxSlippage);
+  }
+}`
+    }
+  },
+
+  'Sniper TG': {
+    author: 'tow3 team',
+    reward: '6%',
+    description: 'Telegram-based token sniping automation',
+    languages: {
+      Python: `from telethon import TelegramClient, events
+
+class TelegramSniper:
+    def __init__(self, api_id: str, api_hash: str):
+        self.client = TelegramClient('sniper', api_id, api_hash)
+        
+    async def monitor_channels(self, channels: list):
+        @self.client.on(events.NewMessage(chats=channels))
+        async def handler(event):
+            if await self.detect_token_post(event):
+                await self.snipe_token(event)`,
+      
+      TypeScript: `import { Api, TelegramClient } from 'telegram';
+
+class TelegramSniper {
+  private client: TelegramClient;
+  
+  constructor(apiId: string, apiHash: string) {
+    this.client = new TelegramClient('sniper', apiId, apiHash);
+  }
+  
+  async monitorChannels(channels: string[]) {
+    // Implementation
+  }
+}`
+    }
+  },
+
+  'Token Analyzer': {
+    author: 'tow3 team',
+    reward: '8%',
+    description: 'Comprehensive token analysis and risk assessment',
+    languages: {
+      Python: `class TokenAnalyzer:
+    def __init__(self):
+        self.risk_factors = [
+            'liquidity_check',
+            'contract_audit',
+            'holder_analysis'
+        ]
+        
+    async def analyze_token(self, address: str):
+        risk_score = 0
+        for factor in self.risk_factors:
+            risk_score += await self.evaluate_risk(
+                factor=factor,
+                token=address
+            )
+        return self.generate_report(risk_score)`,
+      
+      Rust: `pub struct TokenAnalyzer {
+    risk_factors: Vec<String>,
+}
+
+impl TokenAnalyzer {
+    pub async fn analyze_token(
+        &self,
+        address: String
+    ) -> Result<Analysis> {
+        // Implementation
+        Ok(analysis)
+    }
+}`
+    }
+  },
+
+  'Bundle Analyzer': {
+    author: 'tow3 team',
+    reward: '7%',
+    description: 'MEV bundle analysis and optimization tool',
+    languages: {
+      TypeScript: `class BundleAnalyzer {
+  async analyzeMEVBundle(bundle: Transaction[]): Promise<BundleAnalysis> {
+    const analysis = {
+      profitability: await this.calculateProfit(bundle),
+      gasOptimization: await this.optimizeGas(bundle),
+      risks: await this.assessRisks(bundle)
+    };
+    return analysis;
+  }
+  
+  private async calculateProfit(bundle: Transaction[]): Promise<number> {
+    // Implementation
+    return profit;
+  }
+}`,
+      
+      Rust: `pub struct BundleAnalyzer {
+    searcher_address: String,
+}
+
+impl BundleAnalyzer {
+    pub async fn analyze_mev_bundle(
+        &self,
+        bundle: Vec<Transaction>
+    ) -> Result<BundleAnalysis> {
+        // Implementation
+        Ok(analysis)
+    }
+}`
+    }
+  },
+
+  'Bubble Map Profit Analyzer': {
+    author: 'tow3 team',
+    reward: '9%',
+    description: 'Visual profit analysis with interactive bubble mapping',
+    languages: {
+      TypeScript: `import * as d3 from 'd3';
+
+class BubbleMapAnalyzer {
+  private svg: d3.Selection;
+  private data: ProfitData[];
+  
+  constructor(container: string) {
+    this.svg = d3.select(container)
+      .append('svg')
+      .attr('width', 800)
+      .attr('height', 600);
+  }
+  
+  async visualizeProfits(trades: Trade[]) {
+    const bubbleData = await this.processTrades(trades);
+    this.renderBubbleMap(bubbleData);
+  }
+}`,
+      
+      Python: `import plotly.graph_objects as go
+import pandas as pd
+
+class BubbleMapAnalyzer:
+    def __init__(self):
+        self.fig = go.Figure()
+        
+    async def visualize_profits(self, trades: list):
+        df = pd.DataFrame(trades)
+        
+        self.fig.add_trace(go.Scatter(
+            x=df['timestamp'],
+            y=df['profit'],
+            mode='markers',
+            marker=dict(
+                size=df['volume'],
+                color=df['profit'],
+                colorscale='Viridis'
+            )
+        ))
+        
+        return self.fig`
+    }
+  },
+
+  'BOT Trading Volume': {
+    author: 'tow3 team',
+    reward: '8%',
+    description: 'High-performance trading bot for Solana with volume manipulation',
+    languages: {
+      Python: `import asyncio
+from solana.rpc.async_api import AsyncClient
+from solana.transaction import Transaction
+
+async def create_volume(amount: float, pair_address: str):
+    client = AsyncClient("https://api.mainnet-beta.solana.com")
+    
+    # Trading logic implementation
+    for _ in range(10):
+        tx = Transaction().add(create_swap_instruction(
+            amount=amount,
+            pair_address=pair_address
+        ))
+        
+        await client.send_transaction(tx)
+        await asyncio.sleep(1)  # Avoid rate limits`,
+      
+      JavaScript: `const { Connection, Transaction } = require('@solana/web3.js');
+const { Market } = require('@project-serum/serum');
+
+async function createVolume(amount, pairAddress) {
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  
+  // Trading implementation
+  for(let i = 0; i < 10; i++) {
+    const tx = new Transaction()
+      .add(createSwapInstruction(amount, pairAddress));
+      
+    await connection.sendTransaction(tx);
+    await new Promise(r => setTimeout(r, 1000));
+  }`
+    }
+  },
+  
+  'Bundle Jito': {
+    author: 'tow3 team',
+    reward: '7%',
+    description: 'MEV bundle creation and submission tool for Jito',
+    languages: {
+      Rust: `use jito_sdk::{
+    packet::BundlePacket,
+    searcher::{SearcherClient, BundleResponse}
+};
+
+async fn submit_bundle(
+    packets: Vec<BundlePacket>,
+    tip_lamports: u64,
+) -> Result<BundleResponse> {
+    let client = SearcherClient::new("auth_token");
+    
+    client.submit_bundle(packets, tip_lamports).await
+}`,
+      
+      TypeScript: `import { 
+  BundlePacket, 
+  SearcherClient 
+} from 'jito-sdk';
+
+async function submitBundle(
+  packets: BundlePacket[],
+  tipLamports: number
+) {
+  const client = new SearcherClient('auth_token');
+  
+  return await client.submitBundle(packets, tipLamports);
+}`
+    }
+  },
+
+  'Create Coin on PF': {
+    author: 'tow3 team',
+    reward: '6%',
+    description: 'Automated token creation on Phoenix Finance',
+    languages: {
+      Solidity: `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract TokenCreator {
+    function createToken(
+        string memory name,
+        string memory symbol,
+        uint8 decimals,
+        uint256 totalSupply
+    ) external returns (address) {
+        // Token creation logic
+        return address(new Token(
+            name, symbol, decimals, totalSupply
+        ));
+    }
+}`,
+      
+      JavaScript: `const { PhoenixSDK } = require('@phoenix-finance/sdk');
+
+async function createToken(params) {
+  const phoenix = new PhoenixSDK();
+  
+  const result = await phoenix.createToken({
+    name: params.name,
+    symbol: params.symbol,
+    decimals: params.decimals,
+    totalSupply: params.totalSupply
+  });
+  
+  return result.tokenAddress;
+}`
+    }
+  },
+
+  'Pumpportal Tools': {
+    author: 'tow3 team',
+    reward: '9%',
+    description: 'Advanced tools for token price manipulation',
+    languages: {
+      Python: `from web3 import Web3
+import asyncio
+
+class PumpTool:
+    def __init__(self, token_address: str):
+        self.token = token_address
+        self.web3 = Web3()
+        
+    async def create_buy_pressure(
+        self,
+        amount: float,
+        duration: int
+    ):
+        # Implementation of buy pressure
+        pass
+        
+    async def simulate_trading(self):
+        # Trading simulation
+        pass`,
+      
+      Rust: `use solana_sdk::{
+    transaction::Transaction,
+    instruction::Instruction
+};
+
+pub struct PumpTool {
+    token_address: String,
+}
+
+impl PumpTool {
+    pub async fn create_buy_pressure(
+        &self,
+        amount: f64,
+        duration: u64
+    ) -> Result<()> {
+        // Implementation
+        Ok(())
+    }
+}`
+    }
+  },
+
+  'Jupiter API Integration': {
+    author: 'tow3 team',
+    reward: '5%',
+    description: 'Complete Jupiter DEX integration toolkit',
+    languages: {
+      TypeScript: `import { Jupiter } from '@jup-ag/core';
+
+async function setupJupiter() {
+  const jupiter = await Jupiter.load({
+    connection,
+    cluster: 'mainnet-beta',
+    user: wallet.publicKey
+  });
+  
+  return jupiter;
+}
+
+async function findBestRoute(
+  inputMint: string,
+  outputMint: string,
+  amount: number
+) {
+  const routes = await jupiter.computeRoutes({
+    inputMint,
+    outputMint,
+    amount,
+    slippage: 0.5
+  });
+  
+  return routes.routesInfos[0];
+}`,
+      
+      Python: `from jupiter_core import Jupiter
+
+async def setup_jupiter():
+    jupiter = await Jupiter.load(
+        connection=connection,
+        cluster='mainnet-beta',
+        user=wallet.public_key
+    )
+    
+    return jupiter
+
+async def find_best_route(
+    input_mint: str,
+    output_mint: str,
+    amount: float
+):
+    routes = await jupiter.compute_routes(
+        input_mint=input_mint,
+        output_mint=output_mint,
+        amount=amount,
+        slippage=0.5
+    )
+    
+    return routes.routes_infos[0]`
+    }
+  },
+
+  'Pumpswap Volume Bot': {
+    author: 'tow3 team',
+    reward: '7%',
+    description: 'Automated volume generation for PumpSwap pools',
+    languages: {
+      JavaScript: `const { Connection, PublicKey } = require('@solana/web3.js');
+const { PumpSwapSDK } = require('@pumpswap/sdk');
+
+class VolumeBot {
+  constructor(poolAddress) {
+    this.pool = new PublicKey(poolAddress);
+    this.sdk = new PumpSwapSDK();
+  }
+  
+  async generateVolume(amount, duration) {
+    const interval = duration / 10;
+    
+    for(let i = 0; i < 10; i++) {
+      await this.sdk.swap({
+        pool: this.pool,
+        amount: amount / 10
+      });
+      
+      await new Promise(r => setTimeout(r, interval));
+    }
+  }
+}`,
+      
+      Python: `from pumpswap_sdk import PumpSwapSDK
+from solana.publickey import PublicKey
+import asyncio
+
+class VolumeBot:
+    def __init__(self, pool_address: str):
+        self.pool = PublicKey(pool_address)
+        self.sdk = PumpSwapSDK()
+    
+    async def generate_volume(
+        self,
+        amount: float,
+        duration: int
+    ):
+        interval = duration / 10
+        
+        for _ in range(10):
+            await self.sdk.swap(
+                pool=self.pool,
+                amount=amount / 10
+            )
+            
+            await asyncio.sleep(interval)`
+    }
+  }
+};
+
+const TechnicalInfo = () => {
+  const [selectedTool, setSelectedTool] = useState(Object.keys(COMMUNITY_TOOLS)[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState('Python');
+  const navigate = useNavigate();
+
+  const currentTool = COMMUNITY_TOOLS[selectedTool];
+  const availableLanguages = Object.keys(currentTool.languages);
+
+  return (
+    <div className="min-h-screen animated-gradient text-white">
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_50%_50%,_var(--color-secondary)_0%,_transparent_50%)] opacity-20"></div>
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_80%_20%,_var(--color-primary)_0%,_transparent_35%)] opacity-10"></div>
+      <SocialHeader />
+      
+      <div className="relative z-10 container mx-auto px-4 py-16">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-primary">Validated Tools</h1>
+          <button
+            onClick={() => navigate('/')}
+            className="bg-[#CC8F0A] text-black px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all duration-300 shadow-lg"
+          >
+            ← Back to Home
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-8">
+          {/* Tools List - Fixed Position */}
+          <div className="space-y-4 sticky top-24 h-fit">
+            <h3 className="text-xl font-bold text-primary mb-4">Available Tools</h3>
+            <div className="max-h-[70vh] overflow-y-auto pr-4 space-y-4">
+              {Object.entries(COMMUNITY_TOOLS).map(([name, tool]) => (
+                <motion.button
+                  key={name}
+                  onClick={() => {
+                    setSelectedTool(name);
+                    setSelectedLanguage(Object.keys(tool.languages)[0]);
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full text-left p-4 rounded-lg transition-colors ${
+                    selectedTool === name
+                      ? 'bg-[#CC8F0A] text-black'
+                      : 'bg-[#151515] hover:bg-[#232323] text-white'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-bold">{name}</h4>
+                      <p className={`text-sm ${selectedTool === name ? 'text-black/70' : 'text-gray-400'}`}>
+                        by {tool.author}
+                      </p>
+                    </div>
+                    <span className={`font-bold ${selectedTool === name ? 'text-black' : 'text-primary'}`}>
+                      {tool.reward}
+                    </span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </div>
+
+          {/* Code Display - Scrollable */}
+          <div className="col-span-2">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedTool}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="bg-[#151515] rounded-lg p-6"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-primary mb-2">{selectedTool}</h2>
+                    <p className="text-gray-400">by {currentTool.author}</p>
+                  </div>
+                  <span className="text-primary font-bold">{currentTool.reward} reward</span>
+                </div>
+                
+                <p className="text-gray-300 mb-6">{currentTool.description}</p>
+
+                <div className="flex gap-4 mb-4">
+                  {availableLanguages.map((lang) => (
+                    <motion.button
+                      key={lang}
+                      onClick={() => setSelectedLanguage(lang)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`px-4 py-2 rounded-md transition-colors ${
+                        selectedLanguage === lang
+                          ? 'bg-[#CC8F0A] text-black'
+                          : 'bg-[#232323] text-white hover:bg-[#151515]'
+                      }`}
+                    >
+                      {lang}
+                    </motion.button>
+                  ))}
+                </div>
+
+                <motion.div
+                  key={selectedLanguage}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <SyntaxHighlighter
+                    language={selectedLanguage.toLowerCase()}
+                    style={atomOneDark}
+                    className="rounded-md"
+                    showLineNumbers
+                  >
+                    {currentTool.languages[selectedLanguage]}
+                  </SyntaxHighlighter>
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TechnicalInfo;
