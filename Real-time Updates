@@ -1,0 +1,28 @@
+import asyncio
+import websockets
+import json
+
+async def subscribe():
+    uri = "wss://pumpportal.fun/api/data"
+    async with websockets.connect(uri) as websocket:
+        # Subscribing to token creation events
+        payload = {
+            "method": "subscribeNewToken",
+        }
+        await websocket.send(json.dumps(payload))
+
+        # Subscribing to migration events
+        payload = {
+            "method": "subscribeMigration",
+        }
+        await websocket.send(json.dumps(payload))
+
+        # Subscribing to trades made by accounts
+        payload = {
+            "method": "subscribeAccountTrade",
+            "keys": ["AArPXm8JatJiuyEffuC1un2Sc835SULa4uQqDcaGpAjV"]
+        }
+        await websocket.send(json.dumps(payload))
+
+        async for message in websocket:
+            print(json.loads(message))
