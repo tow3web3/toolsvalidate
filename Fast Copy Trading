@@ -1,0 +1,19 @@
+from web3 import Web3
+import asyncio
+
+class CopyTrader:
+    def __init__(self, target_wallet: str):
+        self.target = target_wallet
+        self.web3 = Web3()
+        
+    async def monitor_transactions(self):
+        while True:
+            txs = await self.get_wallet_transactions()
+            for tx in txs:
+                if self.is_trade(tx):
+                    await self.copy_trade(tx)
+            await asyncio.sleep(0.1)
+            
+    async def copy_trade(self, tx):
+        # Copy trade implementation
+        pass
