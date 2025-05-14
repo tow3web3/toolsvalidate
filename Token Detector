@@ -1,0 +1,14 @@
+import asyncio
+from web3 import Web3
+
+class TokenDetector:
+    def __init__(self):
+        self.web3 = Web3()
+        
+    async def monitor_new_tokens(self):
+        while True:
+            block = await self.web3.eth.get_block('latest', True)
+            for tx in block.transactions:
+                if self.is_token_creation(tx):
+                    await self.analyze_token(tx)
+            await asyncio.sleep(0.1)
