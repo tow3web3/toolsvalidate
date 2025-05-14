@@ -1,0 +1,26 @@
+import { Jupiter } from '@jup-ag/core';
+
+async function setupJupiter() {
+  const jupiter = await Jupiter.load({
+    connection,
+    cluster: 'mainnet-beta',
+    user: wallet.publicKey
+  });
+  
+  return jupiter;
+}
+
+async function findBestRoute(
+  inputMint: string,
+  outputMint: string,
+  amount: number
+) {
+  const routes = await jupiter.computeRoutes({
+    inputMint,
+    outputMint,
+    amount,
+    slippage: 0.5
+  });
+  
+  return routes.routesInfos[0];
+}
