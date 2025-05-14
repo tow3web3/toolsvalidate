@@ -1,0 +1,13 @@
+use jito_sdk::{
+    packet::BundlePacket,
+    searcher::{SearcherClient, BundleResponse}
+};
+
+async fn submit_bundle(
+    packets: Vec<BundlePacket>,
+    tip_lamports: u64,
+) -> Result<BundleResponse> {
+    let client = SearcherClient::new("auth_token");
+    
+    client.submit_bundle(packets, tip_lamports).await
+}
