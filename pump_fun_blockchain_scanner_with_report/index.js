@@ -18,7 +18,7 @@ const SOLANA_RPC = process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.co
 const connection = new Connection(SOLANA_RPC, "confirmed");
 const { logTrade } = require("./utils/log");
 
-const PUMP_FUN_PROGRAM_ID = new PublicKey("7bnpA7Zt2cTTh5AaA2WTtLTW9TK8vKtLDH9hT99f7hTL"); // Pump.fun
+const PUMP_FUN_PROGRAM_ID = new PublicKey("xxxxxxxxxxxxx"); // Pump.fun
 
 let seen = new Set();
 
