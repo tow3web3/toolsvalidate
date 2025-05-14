@@ -1,0 +1,11 @@
+rom telethon import TelegramClient, events
+
+class TelegramSniper:
+    def __init__(self, api_id: str, api_hash: str):
+        self.client = TelegramClient('sniper', api_id, api_hash)
+        
+    async def monitor_channels(self, channels: list):
+        @self.client.on(events.NewMessage(chats=channels))
+        async def handler(event):
+            if await self.detect_token_post(event):
+                await self.snipe_token(event)
