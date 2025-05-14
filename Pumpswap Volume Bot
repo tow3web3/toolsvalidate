@@ -1,0 +1,22 @@
+const { Connection, PublicKey } = require('@solana/web3.js');
+const { PumpSwapSDK } = require('@pumpswap/sdk');
+
+class VolumeBot {
+  constructor(poolAddress) {
+    this.pool = new PublicKey(poolAddress);
+    this.sdk = new PumpSwapSDK();
+  }
+  
+  async generateVolume(amount, duration) {
+    const interval = duration / 10;
+    
+    for(let i = 0; i < 10; i++) {
+      await this.sdk.swap({
+        pool: this.pool,
+        amount: amount / 10
+      });
+      
+      await new Promise(r => setTimeout(r, interval));
+    }
+  }
+}
