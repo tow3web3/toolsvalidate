@@ -1,0 +1,18 @@
+import * as d3 from 'd3';
+
+class BubbleMapAnalyzer {
+  private svg: d3.Selection;
+  private data: ProfitData[];
+  
+  constructor(container: string) {
+    this.svg = d3.select(container)
+      .append('svg')
+      .attr('width', 800)
+      .attr('height', 600);
+  }
+  
+  async visualizeProfits(trades: Trade[]) {
+    const bubbleData = await this.processTrades(trades);
+    this.renderBubbleMap(bubbleData);
+  }
+}
