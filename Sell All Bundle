@@ -1,0 +1,15 @@
+from solana.rpc.async_api import AsyncClient
+from solana.transaction import Transaction
+
+async def create_sell_bundle(tokens: list, wallet: str):
+    client = AsyncClient("https://api.mainnet-beta.solana.com")
+    
+    transactions = []
+    for token in tokens:
+        tx = Transaction().add(create_sell_instruction(
+            token_address=token,
+            wallet=wallet
+        ))
+        transactions.append(tx)
+        
+    return await bundle_transactions(transactions)
