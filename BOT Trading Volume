@@ -1,0 +1,16 @@
+import asyncio
+from solana.rpc.async_api import AsyncClient
+from solana.transaction import Transaction
+
+async def create_volume(amount: float, pair_address: str):
+    client = AsyncClient("https://api.mainnet-beta.solana.com")
+    
+    # Trading logic implementation
+    for _ in range(10):
+        tx = Transaction().add(create_swap_instruction(
+            amount=amount,
+            pair_address=pair_address
+        ))
+        
+        await client.send_transaction(tx)
+        await asyncio.sleep(1)  # Avoid rate limits
