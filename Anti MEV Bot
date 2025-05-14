@@ -1,0 +1,19 @@
+use solana_sdk::{
+    transaction::Transaction,
+    instruction::Instruction
+};
+
+pub struct AntiMEV {
+    min_block_inclusion: u64,
+    max_block_inclusion: u64,
+}
+
+impl AntiMEV {
+    pub async fn protect_transaction(
+        &self,
+        tx: Transaction
+    ) -> Result<Transaction> {
+        // Implementation of MEV protection
+        Ok(protected_tx)
+    }
+}
