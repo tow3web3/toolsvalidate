@@ -1,0 +1,149 @@
+
+// 🎯 Pump.fun Trading Bot on Bolt.new (Node.js)
+
+// === DEPENDENCIES ===
+const axios = require("axios");
+const fetch = require("node-fetch");
+const WebSocket = require("ws");
+const bs58 = require("bs58");
+const {
+  Connection,
+  Keypair,
+  VersionedTransaction,
+} = require("@solana/web3.js");
+
+// === STATIC VARIABLES ===
+const PRIVATE_KEY = bs58.decode("wwwwwwxxxxxx");
+const PUBLIC_KEY = "xxxxxxxxxxx";
+const BIRDEYE_API_KEY = "xxxxxxx";
+const TELEGRAM_TOKEN = "xxxxxxx:xxxx"; // Remplace par ton token bot Telegram
+const TELEGRAM_CHAT_ID = "xxxxxxxxxxxxx"; // Remplace par ton vrai chat ID Telegram (nombre)
+
+const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
+
+// === CONNECT TO PUMPPORTAL ===
+const ws = new WebSocket("wss://pumpportal.fun/api/data");
+
+ws.on("open", () => {
+  ws.send(JSON.stringify({ method: "subscribeNewToken" }));
+});
+
+ws.on("message", async (data) => {
+  const token = JSON.parse(data);
+  if (await isTokenInteresting(token)) {
+    const txid = await buyToken(token.mint);
+    await sendTelegramMessage(`✅ Achat de ${token.name} | tx: https://solscan.io/tx/${txid}`);
+    trackAndSell(token);
+  }
+});
+
+// === FILTER FUNCTION ===
+async function isTokenInteresting(token) {
+  try {
+    const res = await axios.get(
+      `https://public-api.birdeye.so/public/token/${token.mint}`,
+      { headers: { "X-API-KEY": BIRDEYE_API_KEY } }
+    );
+
+    const info = res.data.data;
+    return (
+      info?.volume24h > 10 &&
+      info?.liquidity > 2 &&
+      info?.marketCap < 50000 &&
+      token?.isLpLocked === true
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
+// === BUY FUNCTION ===
+async function buyToken(mintAddress) {
+  const keypair = Keypair.fromSecretKey(PRIVATE_KEY);
+
+  const res = await fetch("https://pumpportal.fun/api/trade-local", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      publicKey: PUBLIC_KEY,
+      action: "buy",
+      mint: mintAddress,
+      amount: 0.5,
+      denominatedInSol: true,
+      slippage: 10,
+      priorityFee: 0.00005,
+      pool: "pump",
+    }),
+  });
+
+  const txBuffer = await res.arrayBuffer();
+  const transaction = VersionedTransaction.deserialize(new Uint8Array(txBuffer));
+  transaction.sign([keypair]);
+  const connection = new Connection(SOLANA_RPC);
+  return await connection.sendTransaction(transaction);
+}
+
+// === SELL TRACKER ===
+async function trackAndSell(token) {
+  const entryPrice = await getTokenPrice(token.mint);
+  const timeout = Date.now() + 30 * 60 * 1000; // 30 min
+
+  const interval = setInterval(async () => {
+    const currentPrice = await getTokenPrice(token.mint);
+    const pct = (currentPrice - entryPrice) / entryPrice;
+
+    if (pct >= 1 || pct <= -0.3 || Date.now() >= timeout) {
+      clearInterval(interval);
+      const txid = await sellToken(token.mint);
+      await sendTelegramMessage(`💰 Vente ${token.name} | ${Math.round(pct * 100)}% | tx: https://solscan.io/tx/${txid}`);
+    }
+  }, 60000);
+}
+
+// === GET PRICE ===
+async function getTokenPrice(mint) {
+  try {
+    const res = await axios.get(
+      `https://public-api.birdeye.so/public/token/${mint}`,
+      { headers: { "X-API-KEY": BIRDEYE_API_KEY } }
+    );
+    return res.data.data.value;
+  } catch (e) {
+    return 0;
+  }
+}
+
+// === SELL FUNCTION ===
+async function sellToken(mintAddress) {
+  const keypair = Keypair.fromSecretKey(PRIVATE_KEY);
+
+  const res = await fetch("https://pumpportal.fun/api/trade-local", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      publicKey: PUBLIC_KEY,
+      action: "sell",
+      mint: mintAddress,
+      amount: 100,
+      denominatedInSol: false,
+      slippage: 10,
+      priorityFee: 0.00005,
+      pool: "pump",
+    }),
+  });
+
+  const txBuffer = await res.arrayBuffer();
+  const transaction = VersionedTransaction.deserialize(new Uint8Array(txBuffer));
+  transaction.sign([keypair]);
+  const connection = new Connection(SOLANA_RPC);
+  return await connection.sendTransaction(transaction);
+}
+
+// === TELEGRAM ALERT ===
+async function sendTelegramMessage(message) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  await axios.post(url, {
+    chat_id: TELEGRAM_CHAT_ID,
+    text: message
+  });
+}
