@@ -1,0 +1,17 @@
+class SniperX:
+    def __init__(self):
+        self.dexes = ['pump', 'raydium', 'orca']
+        
+    async def snipe(
+        self,
+        token_address: str,
+        amount: float,
+        max_slippage: float
+    ):
+        best_dex = await self.find_best_dex(token_address)
+        return await self.execute_snipe(
+            dex=best_dex,
+            token=token_address,
+            amount=amount,
+            slippage=max_slippage
+        )
